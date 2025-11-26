@@ -12,6 +12,15 @@ A Model Context Protocol (MCP) server that provides AI agents with intelligent c
 - **Git History**: Access commit history and diffs
 - **PR Review Support**: Review diffs with full codebase context
 
+## 🚀 Quick Start
+
+**New to this project?** Start here:
+
+1. **[QUICK_START.md](QUICK_START.md)** - Get up and running in 5 minutes
+2. **[USAGE_GUIDE.md](USAGE_GUIDE.md)** - Comprehensive usage documentation
+3. **[IMPLEMENTATION_SUMMARY.md](IMPLEMENTATION_SUMMARY.md)** - Full implementation details
+4. **[examples/](examples/)** - LLM integration examples (OpenAI, Claude)
+
 ## Installation
 
 ```bash
@@ -19,19 +28,39 @@ npm install
 npm run build
 ```
 
-## Usage
+## Usage Modes
 
-### Stdio Transport (Local/CLI)
+### 1. CLI Tool (Recommended for Getting Started)
+
+Analyze any GitHub repository directly from the command line:
+
+```bash
+# General analysis
+npm run analyze -- facebook/react main
+
+# Ask specific questions
+npm run analyze -- facebook/react main "How does reconciliation work?"
+```
+
+See [QUICK_START.md](QUICK_START.md) for more examples.
+
+### 2. MCP Server (For Claude Desktop Integration)
+
+#### Stdio Transport (Local)
 
 ```bash
 npm start
 ```
 
-### HTTP Transport (Remote/Web)
+#### HTTP Transport (Remote/Web)
 
 ```bash
 TRANSPORT=http PORT=3000 npm start
 ```
+
+### 3. With LLM Integration (For AI-Powered Analysis)
+
+See [examples/](examples/) for OpenAI and Anthropic Claude integration examples.
 
 ## Available Tools
 
