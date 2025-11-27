@@ -8,6 +8,7 @@
     "build": "tsc",
     "build:mem": "NODE_OPTIONS='--max-old-space-size=4096' tsc",
     "start": "node dist/index.js",
+    "start:http": "TRANSPORT=http PORT=3000 npm start",
     "dev": "tsc -w",
     "analyze": "npm run build && node dist/analyze-repo.js"
   },

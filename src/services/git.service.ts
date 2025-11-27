@@ -1,6 +1,6 @@
 // Git service for repository operations
 
-import { simpleGit, SimpleGit } from "simple-git";
+import { simpleGit } from "simple-git";
 import * as fs from "fs/promises";
 import * as path from "path";
 import { glob } from "glob";
@@ -20,7 +20,6 @@ import {
   IGNORE_PATTERNS,
   LANGUAGE_MAP,
   DEFAULT_BRANCH,
-  CLONE_DEPTH,
 } from "../constants.js";
 
 // In-memory storage for indexed repositories
@@ -78,7 +77,6 @@ export async function cloneRepository(
       const freshGit = simpleGit();
       await freshGit.clone(repoUrl, localPath, [
         "--branch", branch,
-        "--depth", CLONE_DEPTH.toString(),
         "--single-branch"
       ]);
       console.error(`Re-cloned repository to ${localPath}`);
@@ -88,7 +86,6 @@ export async function cloneRepository(
     const git = simpleGit();
     await git.clone(repoUrl, localPath, [
       "--branch", branch,
-      "--depth", CLONE_DEPTH.toString(),
       "--single-branch"
     ]);
     console.error(`Cloned repository to ${localPath}`);
