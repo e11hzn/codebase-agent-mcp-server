@@ -118,5 +118,5 @@ export const LANGUAGE_MAP: Record<string, string> = {
 
 // Git defaults
 export const DEFAULT_BRANCH = "main";
-export const CLONE_DEPTH = 1;
+export const CLONE_DEPTH = 0;
 export const REPOS_DIRECTORY = "/tmp/mcp-repos";

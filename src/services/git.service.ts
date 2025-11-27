@@ -63,12 +63,26 @@ export async function cloneRepository(
   // Check if repo already exists
   try {
     await fs.access(localPath);
-    // Repository exists, pull latest changes
+    // Repository exists, try to update it
     const git = simpleGit(localPath);
-    await git.fetch();
-    await git.checkout(branch);
-    await git.pull("origin", branch);
-    console.error(`Updated repository at ${localPath}`);
+    try {
+      await git.fetch();
+      await git.checkout(branch);
+      await git.pull("origin", branch);
+      console.error(`Updated repository at ${localPath}`);
+    } catch (gitError) {
+      // Git operations failed, directory might be corrupted
+      // Remove the directory and re-clone
+      console.error(`Failed to update repository, removing and re-cloning: ${gitError}`);
+      await fs.rm(localPath, { recursive: true, force: true });
+      const freshGit = simpleGit();
+      await freshGit.clone(repoUrl, localPath, [
+        "--branch", branch,
+        "--depth", CLONE_DEPTH.toString(),
+        "--single-branch"
+      ]);
+      console.error(`Re-cloned repository to ${localPath}`);
+    }
   } catch {
     // Repository doesn't exist, clone it
     const git = simpleGit();
@@ -515,7 +529,39 @@ export async function getDiff(
   const git = simpleGit(repo.localPath);
 
   if (compareWith) {
-    return await git.diff([compareWith, commitOrBranch]);
+    // First, ensure we have all remote branches available
+    try {
+      // Fetch all branches from origin without updating local branches
+      await git.fetch(['origin', '+refs/heads/*:refs/remotes/origin/*']);
+    } catch (fetchError) {
+      console.error(`Warning: Failed to fetch all branches: ${fetchError}`);
+    }
+
+    // Try different reference formats in order of preference
+    const refsToTry = [
+      compareWith,                    // Local branch
+      `origin/${compareWith}`,        // Remote tracking branch
+      `refs/remotes/origin/${compareWith}`,  // Full remote ref
+    ];
+
+    let lastError: any = null;
+    for (const ref of refsToTry) {
+      try {
+        await git.revparse([ref]);
+        // Reference exists, use it for diff
+        return await git.diff([ref, commitOrBranch]);
+      } catch (error) {
+        lastError = error;
+        continue;
+      }
+    }
+
+    // None of the references worked
+    throw new Error(
+      `Failed to resolve reference '${compareWith}'. ` +
+      `Tried: ${refsToTry.join(', ')}. ` +
+      `Last error: ${lastError}`
+    );
   } else {
     return await git.diff([`${commitOrBranch}~1`, commitOrBranch]);
   }
